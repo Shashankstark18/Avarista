@@ -65,7 +65,6 @@ flutter:
     - lib/assets/verification_success/image5.png
     - lib/assets/verification_success/image6.png
     - lib/assets/verification_success/image7.png
-
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
