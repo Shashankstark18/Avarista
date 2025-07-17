@@ -42,6 +42,43 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
     });
   }
 
+  void showTopNotification(String message) {
+    final overlay = Overlay.of(context);
+    final overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+        top: MediaQuery.of(context).padding.top + 16,
+        left: 20,
+        right: 20,
+        child: Material(
+          elevation: 6,
+          borderRadius: BorderRadius.circular(8),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: Colors.green,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              children: const [
+                Icon(Icons.check_circle, color: Colors.white),
+                SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    "The code has been resubmitted",
+                    style: TextStyle(color: Colors.white, fontSize: 14),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+
+    overlay.insert(overlayEntry);
+    Future.delayed(const Duration(seconds: 2), () => overlayEntry.remove());
+  }
+
   @override
   void dispose() {
     _timer.cancel();
@@ -121,18 +158,13 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
                           const Text("Didn't get code? "),
                           GestureDetector(
                             onTap: () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text("✅ The code has been resubmitted"),
-                                  backgroundColor: Colors.green,
-                                ),
-                              );
+                              showTopNotification("The code has been resubmitted");
                               _startResendTimer();
                             },
                             child: const Text(
                               "Resend code",
                               style: TextStyle(
-                                color: Color(0xFF2196F3), // Blue color
+                                color: Color(0xFF2196F3), // Blue
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
@@ -140,7 +172,6 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
                         ],
                       )
                           : Text("Resend OTP in ${_secondsRemaining}s"),
-
                       const SizedBox(height: 20),
                       ElevatedButton(
                         onPressed: () {
