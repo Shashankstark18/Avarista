@@ -225,6 +225,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             child: ElevatedButton(
                               onPressed: () {
                                 // Handle login
+                                Navigator.pushNamed(context, '/otp');
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Color(0xFFB71C1C),

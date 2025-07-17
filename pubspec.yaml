@@ -57,7 +57,14 @@ flutter:
     - lib/assets/icons/google.png
     - lib/assets/icons/facebook.png
     - lib/assets/icons/apple.png
-    - lib/screens/auth/girl_bag.png
+    - lib/assets/girl_bag.png
+    - lib/assets/verification_success/image1.png
+    - lib/assets/verification_success/image2.png
+    - lib/assets/verification_success/image3.png
+    - lib/assets/verification_success/image4.png
+    - lib/assets/verification_success/image5.png
+    - lib/assets/verification_success/image6.png
+    - lib/assets/verification_success/image7.png
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

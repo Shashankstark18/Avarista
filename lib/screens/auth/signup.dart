@@ -12,7 +12,7 @@ class SignupScreen extends StatelessWidget {
       body: BackgroundWallpaper(
         child: Column(
           children: [
-            SizedBox(height: 140),
+            SizedBox(height: 120),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 20),
               child: Container(
@@ -35,11 +35,11 @@ class SignupScreen extends StatelessWidget {
                     Text("Hello there! Let's create your", style: TextStyle(fontSize: 20,)),
                     Text("account", style: TextStyle(fontSize: 20,)),
 
-                    SizedBox(height: 40),
+                    SizedBox(height: 25),
                     FormInput(hint: 'Enter Your Name'),
-                    SizedBox(height: 30),
+                    SizedBox(height: 25),
                     FormInput(hint: 'Enter Your Last Name'),
-                    SizedBox(height: 30),
+                    SizedBox(height: 25),
                   IntlPhoneField(
                 decoration: InputDecoration(
                 labelText: 'Phone Number',
@@ -65,11 +65,11 @@ class SignupScreen extends StatelessWidget {
                 print(phone.completeNumber); // You get +91XXXXXXXXXX
               },
             ),
-                    SizedBox(height: 30),
+                    SizedBox(height: 5),
                     FormInput(hint: 'Email address'),
-                    SizedBox(height: 30),
+                    SizedBox(height: 25),
                     FormInput(hint: 'Password', isPassword: true),
-                    SizedBox(height: 30),
+                    SizedBox(height: 25),
               Row(
                   children: [
                   Checkbox(value: false, onChanged: (val) {}),
@@ -104,7 +104,7 @@ class SignupScreen extends StatelessWidget {
               ),
               ],
             ),
-                    SizedBox(height: 15),
+                    SizedBox(height: 10),
 
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
@@ -118,7 +118,7 @@ class SignupScreen extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(height: 10),
+            SizedBox(height: 5),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
