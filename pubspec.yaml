@@ -33,8 +33,9 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
-
   intl_phone_field: ^3.2.0
+  smooth_page_indicator: ^1.1.0
+
 
 
 dev_dependencies:
@@ -58,13 +59,14 @@ flutter:
     - lib/assets/icons/facebook.png
     - lib/assets/icons/apple.png
     - lib/assets/girl_bag.png
-    - lib/assets/verification_success/image1.png
-    - lib/assets/verification_success/image2.png
-    - lib/assets/verification_success/image3.png
-    - lib/assets/verification_success/image4.png
-    - lib/assets/verification_success/image5.png
-    - lib/assets/verification_success/image6.png
-    - lib/assets/verification_success/image7.png
+    - lib/assets/products/
+    - lib/assets/verification_success/
+    - lib/assets/home_icons/
+    - lib/assets/shops/
+    - lib/assets/banner/
+    - lib/assets/avarista.png
+
+
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.

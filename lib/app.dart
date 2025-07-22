@@ -5,6 +5,7 @@ import 'screens/auth/forgot_password.dart';
 import 'screens/auth/reset_password.dart';
 import 'screens/auth/otp_screen.dart';
 import 'screens/auth/verification_success.dart';
+import 'screens/home/home.dart';
 
 class AvaristaApp extends StatelessWidget {
   const AvaristaApp({super.key});
@@ -26,6 +27,7 @@ class AvaristaApp extends StatelessWidget {
         '/reset-password': (context) => ResetPasswordScreen(),
         '/otp': (context) => OTPVerificationScreen(),
         '/verification_success': (context) => VerificationSuccessScreen(),
+        '/fashion_home': (context) => FashionShoppingScreen(),
       },
     );
   }

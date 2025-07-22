@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:avarista/widgets/BackgroundWallpaper.dart';
-import 'dart:math';
 
 class VerificationSuccessScreen extends StatelessWidget {
   const VerificationSuccessScreen({super.key});
@@ -178,7 +177,7 @@ class VerificationSuccessScreen extends StatelessWidget {
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: () {
-                          Navigator.pushNamed(context, '/home');
+                          Navigator.pushNamed(context, '/fashion_home');
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFFA6192E),
