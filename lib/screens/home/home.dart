@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
 
 class FashionShoppingScreen extends StatelessWidget {
   final List<Map<String, dynamic>> products = [
@@ -178,8 +179,8 @@ class FashionShoppingScreen extends StatelessWidget {
                           // Avarista Icon
                           Image.asset(
                             'lib/assets/avarista.png',
-                            width: 20,
-                            height: 20,
+                            width: 30,
+                            height: 25,
                           ),
                           const SizedBox(width: 6),
 
@@ -192,11 +193,11 @@ class FashionShoppingScreen extends StatelessWidget {
                           ),
 
                           // Mic Icon
-                          const Icon(Icons.mic_none, color: Colors.grey, size: 20),
-                          const SizedBox(width: 8),
+                          const Icon(Icons.mic_none, color: Colors.grey, size: 25),
+                          const SizedBox(width: 12),
 
                           // Camera Icon
-                          const Icon(Icons.camera_alt, color: Colors.grey, size: 20),
+                          const Icon(Icons.camera_alt, color: Colors.grey, size: 25),
                         ],
                       ),
                     ),
@@ -206,12 +207,13 @@ class FashionShoppingScreen extends StatelessWidget {
 
                   // Right Segment: Filter
                   Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: const BoxDecoration(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
                       color: Colors.white,
-                      shape: BoxShape.circle,
+                      shape: BoxShape.rectangle,
+                      borderRadius: BorderRadius.circular(5),
                     ),
-                    child: const Icon(Icons.tune, color: Colors.grey, size: 25),
+                    child: const Icon(Icons.tune, color: Colors.grey, size: 30),
                   ),
                 ],
               ),
@@ -411,7 +413,7 @@ class FashionShoppingScreen extends StatelessWidget {
 }
 
 
-class ProductSection extends StatelessWidget {
+class ProductSection extends StatefulWidget {
   final String title;
   final List<Map<String, dynamic>> products;
   final bool showTimer;
@@ -424,6 +426,45 @@ class ProductSection extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<ProductSection> createState() => _ProductSectionState();
+}
+
+class _ProductSectionState extends State<ProductSection> {
+  late Timer _timer;
+  Duration _duration = const Duration(hours: 10, minutes: 20, seconds: 35);
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.showTimer) _startCountdown();
+  }
+
+  void _startCountdown() {
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (_duration.inSeconds == 0) {
+        _timer.cancel();
+      } else {
+        setState(() {
+          _duration -= const Duration(seconds: 1);
+        });
+      }
+    });
+  }
+
+  String _formatDuration(Duration d) {
+    final h = d.inHours.toString().padLeft(2, '0');
+    final m = (d.inMinutes % 60).toString().padLeft(2, '0');
+    final s = (d.inSeconds % 60).toString().padLeft(2, '0');
+    return "$h:$m:$s";
+  }
+
+  @override
+  void dispose() {
+    if (widget.showTimer) _timer.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -432,16 +473,16 @@ class ProductSection extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(widget.title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             Row(
               children: [
-                if (showTimer)
+                if (widget.showTimer)
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(12)),
-                    child: const Text(
-                      '10:20:35',
-                      style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                    child: Text(
+                      _formatDuration(_duration),
+                      style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
                     ),
                   ),
                 const SizedBox(width: 8),
@@ -457,11 +498,11 @@ class ProductSection extends StatelessWidget {
           height: 230,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
-            itemCount: products.length,
+            itemCount: widget.products.length,
             padding: const EdgeInsets.only(right: 4),
             separatorBuilder: (_, __) => const SizedBox(width: 12),
             itemBuilder: (context, index) {
-              final product = products[index];
+              final product = widget.products[index];
               return _DiscountCardWithBagIcon(
                 image: product['image'],
                 title: product['title'],

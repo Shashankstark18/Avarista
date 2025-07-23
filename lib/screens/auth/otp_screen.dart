@@ -178,10 +178,19 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
                           Navigator.pushNamed(context, '/verification_success');
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFA6192E),
-                          minimumSize: const Size.fromHeight(45),
+                          backgroundColor: const Color(0xFFA6192E), // Deep red
+                          foregroundColor: Colors.white,
+                          elevation: 2,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          minimumSize: const Size.fromHeight(50),
+                          textStyle: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-                        child: const Text("Verify", style: TextStyle(color: Colors.white)),
+                        child: const Text("Verify"),
                       ),
                     ],
                   ),

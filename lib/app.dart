@@ -18,6 +18,14 @@ class AvaristaApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.red,
         scaffoldBackgroundColor: Colors.white,
+        textTheme: const TextTheme(
+          bodyLarge: TextStyle(color: Colors.black),
+          bodyMedium: TextStyle(color: Colors.black87),
+          bodySmall: TextStyle(color: Colors.black54),
+          titleLarge: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          titleMedium: TextStyle(fontSize: 16),
+          titleSmall: TextStyle(fontSize: 14),
+        ),
       ),
       initialRoute: '/login',
       routes: {
