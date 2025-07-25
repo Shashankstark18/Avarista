@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-import 'package:avarista/screens/home/search/search.dart'; // Assuming these exist
-import 'filter/filter.dart'; // Assuming these exist
-import 'saved_item/saved.dart'; // Assuming these exist
+import 'package:avarista/screens/home/search/search.dart';
+import 'filter/filter.dart';
+import 'saved_item/saved.dart';
 
 class FashionShoppingScreen extends StatefulWidget {
   @override
@@ -143,7 +143,6 @@ class _FashionShoppingScreenState extends State<FashionShoppingScreen> {
           _isBottomBarVisible = shouldShowBottomBar;
         });
       }
-
       _lastScrollPosition = currentScrollPosition;
     }
   }
@@ -152,8 +151,8 @@ class _FashionShoppingScreenState extends State<FashionShoppingScreen> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 40, // Reduced from 48
-        height: 40, // Reduced from 48
+        width: 40,
+        height: 40,
         decoration: BoxDecoration(
           color: isActive ? Colors.white.withOpacity(0.2) : Colors.transparent,
           shape: BoxShape.circle,
@@ -161,7 +160,7 @@ class _FashionShoppingScreenState extends State<FashionShoppingScreen> {
         child: Icon(
           icon,
           color: Colors.white,
-          size: 20, // Reduced from 24
+          size: 20,
         ),
       ),
     );
@@ -169,62 +168,152 @@ class _FashionShoppingScreenState extends State<FashionShoppingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final double fixedTopHeight = 220; // Estimated height for 'Hello, Welcome' + search bar + some red background
+    final double scrollableRedHeaderHeight = MediaQuery.of(context).padding.top + 160;
+ // Space below banner before the white section starts
 
-    return Scaffold(
-      backgroundColor: Colors.transparent, // Set the scaffold background to transparent as the Stack will handle it
-      extendBody: true, // This allows the body to extend behind the bottom navigation bar
-      body: Stack(
-        children: [
-          Container(
-            height: fixedTopHeight, // Height of the fixed red background area
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [Color(0xFFA6192E), Color(0xFFA6192E)], // Solid red
+      return Scaffold(
+        extendBody: true,
+        backgroundColor: Colors.white,
+        body: CustomScrollView(
+          controller: _scrollController,
+          slivers: [
+            SliverToBoxAdapter(
+              child: Stack(
+                clipBehavior: Clip.none, // Allows overflow
+                children: [
+                  // 🔴 RED HEADER
+                  Container(
+                    padding: EdgeInsets.only(
+                      top: MediaQuery.of(context).padding.top + 26,
+                      left: 16,
+                      right: 16,
+                      bottom: 100, // enough space for the banner to overflow without being clipped
+                    ),
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [Color(0xFFA6192E), Color(0xFFA6192E)],
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // Welcome + Notification
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: const [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Hello, Welcome',
+                                    style: TextStyle(color: Colors.white, fontSize: 14)),
+                                Text('Albert Stevano',
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold)),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                Icon(Icons.notifications_none, color: Colors.white),
+                                SizedBox(width: 12),
+                                Icon(Icons.shopping_cart_outlined, color: Colors.white),
+                              ],
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+
+                        // 🔍 Search + Filter
+                        Align(
+                          alignment: Alignment.center,
+                          child: FractionallySizedBox(
+                            widthFactor: 0.999, // 90% of screen width
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(context,
+                                          MaterialPageRoute(builder: (_) => SearchScreen()));
+                                    },
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(5),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Image.asset('lib/assets/avarista.png', width: 30, height: 25),
+                                          const SizedBox(width: 6),
+                                          const Expanded(
+                                            child: Text('Search', style: TextStyle(color: Colors.grey)),
+                                          ),
+                                          const Icon(Icons.mic_none, color: Colors.grey, size: 25),
+                                          const SizedBox(width: 12),
+                                          const Icon(Icons.camera_alt, color: Colors.grey, size: 25),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                GestureDetector(
+                                  onTap: () {
+                                    Navigator.push(context,
+                                        MaterialPageRoute(builder: (_) => FilterScreen()));
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(5),
+                                    ),
+                                    child: const Icon(Icons.tune, color: Colors.grey, size: 30),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // 🖼️ Positioned BANNER
+                  Positioned(
+                    left: 16,
+                    right: 16,
+                    bottom: -80, // Half outside the red container
+                    child: const BannerSlider(), // your existing banner widget
+                  ),
+                ],
               ),
             ),
-          ),
-          Positioned(
-            top: fixedTopHeight, // Starts where the fixed red background ends
-            left: 0,
-            right: 0,
-            bottom: 0, // Extends to the bottom of the screen
-            child: Container(color: Colors.white),
-          ),
-          // The main scrollable content
-          ListView(
-            controller: _scrollController,
-            padding: EdgeInsets.only(
-              top: fixedTopHeight, // Content starts below the fixed red area
-              bottom: 80 + MediaQuery.of(context).padding.bottom, // Account for bottom nav bar + system inset
-            ),
-            children: [
-              // This is the container for the white background with the top curve.
-              // It's the first scrollable item, immediately following the fixed top.
-              Container(
+
+            // Scrollable content
+            SliverToBoxAdapter(
+              child: Container(
                 decoration: const BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.all(6), // Padding for the content inside this white container
+                  padding: const EdgeInsets.fromLTRB(16, 60, 16, 16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Banner
-                      BannerSlider(),
-
-                      const SizedBox(height: 4),
-
-                      // Category grid
                       GridView.count(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
                         crossAxisCount: 5,
-                        mainAxisSpacing: 16,
-                        crossAxisSpacing: 3,
+                        mainAxisSpacing: 6,
+                        crossAxisSpacing: 6,
                         children: [
                           _buildCategoryItem('lib/assets/home_icons/Vector_1.png', 'Blouse'),
                           _buildCategoryItem('lib/assets/home_icons/Vector_2.png', 'Uniform'),
@@ -238,33 +327,14 @@ class _FashionShoppingScreenState extends State<FashionShoppingScreen> {
                           _buildCategoryItem('lib/assets/home_icons/Vector_10.png', 'More'),
                         ],
                       ),
-
-
-                      // Shops section header
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: const [
-                          Text(
-                            'Shops',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF1E1E1E),
-                            ),
-                          ),
-                          Text(
-                            'See All',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Color(0xFFA6192E),
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
+                          Text('Shops', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1E1E1E))),
+                          Text('See All', style: TextStyle(fontSize: 14, color: Color(0xFFA6192E), fontWeight: FontWeight.w500)),
                         ],
                       ),
                       const SizedBox(height: 16),
-
-                      // SHOP CARDS
                       SizedBox(
                         height: 180,
                         child: ListView.separated(
@@ -279,183 +349,59 @@ class _FashionShoppingScreenState extends State<FashionShoppingScreen> {
                                   children: [
                                     ClipRRect(
                                       borderRadius: BorderRadius.circular(12),
-                                      child: Image.asset(
-                                        shop['image'],
-                                        width: 185,
-                                        height: 140,
-                                        fit: BoxFit.cover,
-                                      ),
+                                      child: Image.asset(shop['image'], width: 195, height: 140, fit: BoxFit.cover),
                                     ),
-                                    // ⭐ Rating
                                     Positioned(
                                       top: 8,
                                       left: 8,
                                       child: Container(
                                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(12),
-                                        ),
                                         child: Row(
                                           children: [
                                             const Icon(Icons.star, size: 14, color: Color(0xFFFFA133)),
                                             const SizedBox(width: 2),
-                                            Text(
-                                              shop['rating'].toString(),
-                                              style: const TextStyle(
-                                                color: Color(0xFF0C0C0C),
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                            ),
+                                            Text(shop['rating'].toString(), style: const TextStyle(color: Color(0xFF0C0C0C), fontSize: 12, fontWeight: FontWeight.w600)),
                                           ],
                                         ),
                                       ),
                                     ),
-                                    // ❤️ Save Icon
                                     Positioned(
                                       top: 8,
                                       right: 8,
                                       child: Container(
                                         padding: const EdgeInsets.all(4),
-                                        decoration: BoxDecoration(
-                                          color: Colors.white.withOpacity(0.8),
-                                          shape: BoxShape.circle,
-                                        ),
+                                        decoration: BoxDecoration(color: Colors.white.withOpacity(0.8), shape: BoxShape.circle),
                                         child: const Icon(Icons.bookmark_border, size: 18, color: Colors.black),
                                       ),
                                     ),
                                   ],
                                 ),
                                 const SizedBox(height: 8),
-                                Text(
-                                  shop['name'],
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    color: Color(0xFF333333),
-                                  ),
-                                ),
+                                Text(shop['name'], style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Color(0xFF333333))),
                               ],
                             );
                           },
                         ),
                       ),
-
-                      // Special discount section
                       const SizedBox(height: 24),
                       ProductSection(title: 'Special Discount', products: products, showTimer: true),
                       const SizedBox(height: 24),
                       ProductSection(title: 'Top Products', products: topProducts),
-                      // Add extra space at bottom for better UX (account for bottom nav bar)
-                      const SizedBox(height: 100),
+                      SizedBox(height: 80 + MediaQuery.of(context).padding.bottom),
                     ],
                   ),
                 ),
               ),
-            ],
-          ),
-          // Fixed top bar content (always visible on top of everything)
-          SafeArea(
-            child: Column(
-              children: [
-                // Top bar: "Hello, Welcome" and icons
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Hello, Welcome', style: TextStyle(color: Colors.white, fontSize: 14)),
-                          Text('Albert Stevano', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-                        ],
-                      ),
-                      Row(
-                        children: const [
-                          Icon(Icons.notifications_none, color: Colors.white),
-                          SizedBox(width: 12),
-                          Icon(Icons.shopping_cart_outlined, color: Colors.white),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                // Search bar and filter
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(
-                    children: [
-                      // Left Segment: Camera + Audio + Search
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => SearchScreen()),
-                            );
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                            child: Row(
-                              children: [
-                                Image.asset(
-                                  'lib/assets/avarista.png',
-                                  width: 30,
-                                  height: 25,
-                                ),
-                                const SizedBox(width: 6),
-                                const Expanded(
-                                  child: Text(
-                                    'Search',
-                                    style: TextStyle(color: Colors.grey),
-                                  ),
-                                ),
-                                const Icon(Icons.mic_none, color: Colors.grey, size: 25),
-                                const SizedBox(width: 12),
-                                const Icon(Icons.camera_alt, color: Colors.grey, size: 25),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-
-                      const SizedBox(width: 8),
-
-                      // Right Segment: Filter
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => FilterScreen()));
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.rectangle,
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                          child: const Icon(Icons.tune, color: Colors.grey, size: 30),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
             ),
-          ),
-        ],
-      ),
+          ],
+        ),
       bottomNavigationBar: AnimatedSlide(
         duration: const Duration(milliseconds: 300),
         offset: _isBottomBarVisible ? Offset.zero : const Offset(0, 1),
         child: Container(
-          height: 80, // Set a fixed compact height
-          padding: EdgeInsets.zero, // Remove any default padding
-          margin: EdgeInsets.zero, // Remove any default margin
+          height: 80,
+          padding: EdgeInsets.zero,
+          margin: EdgeInsets.zero,
           child: Center(
             child: Container(
               margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
@@ -505,6 +451,7 @@ class _FashionShoppingScreenState extends State<FashionShoppingScreen> {
     );
   }
 
+  // _buildCategoryItem and other helper widgets remain the same
   Widget _buildCategoryItem(String iconPath, String label, {VoidCallback? onTap}) {
     return GestureDetector(
       onTap: onTap,
@@ -519,8 +466,8 @@ class _FashionShoppingScreenState extends State<FashionShoppingScreen> {
             ),
             child: Image.asset(
               iconPath,
-              width: 28,
-              height: 28,
+              width: 29,
+              height: 29,
               color: Color(0xFFA6192E),
             ),
           ),
@@ -536,7 +483,7 @@ class _FashionShoppingScreenState extends State<FashionShoppingScreen> {
   }
 }
 
-// Keep the existing ProductSection, _DiscountCardWithBagIcon, and BannerSlider classes unchanged
+// ProductSection and _DiscountCardWithBagIcon classes remain unchanged
 class ProductSection extends StatefulWidget {
   final String title;
   final List<Map<String, dynamic>> products;
@@ -661,7 +608,7 @@ class _DiscountCardWithBagIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 180,
+      width: 200,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -763,7 +710,7 @@ class BannerSlider extends StatefulWidget {
 }
 
 class _BannerSliderState extends State<BannerSlider> {
-  final PageController _pageController = PageController(viewportFraction: 0.98);
+  final PageController _pageController = PageController(viewportFraction: 1.1);
   int _currentIndex = 0;
 
   final List<Map<String, String>> bannerData = [
@@ -840,7 +787,7 @@ class _BannerSliderState extends State<BannerSlider> {
           return Container(
             margin: const EdgeInsets.symmetric(horizontal: 4),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(24),
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
@@ -856,7 +803,7 @@ class _BannerSliderState extends State<BannerSlider> {
                 Expanded(
                   flex: 5,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
                     decoration: const BoxDecoration(
                       gradient: LinearGradient(
                         colors: [Color(0xFFC5C8B2), Color(0xFFB5BEAF)],
@@ -865,11 +812,11 @@ class _BannerSliderState extends State<BannerSlider> {
                       ),
                     ),
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          banner['title']!,
+                          banner['title'] ?? '',
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -878,15 +825,16 @@ class _BannerSliderState extends State<BannerSlider> {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          banner['subtitle']!,
+                          banner['subtitle'] ?? '',
                           style: const TextStyle(
-                            color: Colors.black54,
                             fontSize: 14,
+                            color: Colors.black54,
                           ),
                         ),
                       ],
                     ),
-                  ),
+                  )
+                  ,
                 ),
                 Expanded(
                   flex: 4,
