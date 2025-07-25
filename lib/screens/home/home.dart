@@ -1,7 +1,19 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'package:avarista/screens/home/search/search.dart';
+import 'filter/filter.dart';
+import 'saved_item/saved.dart';
 
-class FashionShoppingScreen extends StatelessWidget {
+class FashionShoppingScreen extends StatefulWidget {
+  @override
+  _FashionShoppingScreenState createState() => _FashionShoppingScreenState();
+}
+
+class _FashionShoppingScreenState extends State<FashionShoppingScreen> {
+  final ScrollController _scrollController = ScrollController();
+  bool _isBottomBarVisible = true;
+  double _lastScrollPosition = 0;
+
   final List<Map<String, dynamic>> products = [
     {
       'image': 'lib/assets/products/product1.png',
@@ -18,7 +30,6 @@ class FashionShoppingScreen extends StatelessWidget {
       'rating': 4.8,
       'price': '\$69,10',
       'originalPrice': '\$60,00',
-
     },
     {
       'image': 'lib/assets/products/product3.png',
@@ -27,7 +38,6 @@ class FashionShoppingScreen extends StatelessWidget {
       'rating': 4.8,
       'price': '\$54,80',
       'originalPrice': '\$60,00',
-
     },
     {
       'image': 'lib/assets/products/product4.png',
@@ -52,7 +62,6 @@ class FashionShoppingScreen extends StatelessWidget {
       'rating': 4.8,
       'price': '\$69,10',
       'originalPrice': '\$60,00',
-
     },
   ];
 
@@ -105,27 +114,55 @@ class FashionShoppingScreen extends StatelessWidget {
       'name': 'name shop',
       'rating': 4.6,
     },
-
   ];
 
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_scrollListener);
+  }
 
-  void _showBottomAppBar(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => Container(
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: const [
-            Icon(Icons.home),
-            Icon(Icons.search),
-            Icon(Icons.shopping_bag),
-            Icon(Icons.favorite),
-            Icon(Icons.person),
-          ],
+  @override
+  void dispose() {
+    _scrollController.removeListener(_scrollListener);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _scrollListener() {
+    const double scrollThreshold = 10.0; // Minimum scroll distance to trigger hide/show
+
+    double currentScrollPosition = _scrollController.offset;
+    double scrollDifference = currentScrollPosition - _lastScrollPosition;
+
+    // Only react if scroll difference is significant enough
+    if (scrollDifference.abs() > scrollThreshold) {
+      bool shouldShowBottomBar = scrollDifference < 0; // Scrolling up
+
+      if (shouldShowBottomBar != _isBottomBarVisible) {
+        setState(() {
+          _isBottomBarVisible = shouldShowBottomBar;
+        });
+      }
+
+      _lastScrollPosition = currentScrollPosition;
+    }
+  }
+
+  Widget _buildAppBarIcon(IconData icon, bool isActive, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 48,
+        height: 48,
+        decoration: BoxDecoration(
+          color: isActive ? Colors.white.withOpacity(0.2) : Colors.transparent,
+          shape: BoxShape.circle,
+        ),
+        child: Icon(
+          icon,
+          color: Colors.white,
+          size: 24,
         ),
       ),
     );
@@ -168,37 +205,38 @@ class FashionShoppingScreen extends StatelessWidget {
                 children: [
                   // Left Segment: Camera + Audio + Search
                   Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                      child: Row(
-                        children: [
-                          // Avarista Icon
-                          Image.asset(
-                            'lib/assets/avarista.png',
-                            width: 30,
-                            height: 25,
-                          ),
-                          const SizedBox(width: 6),
-
-                          // Placeholder Text
-                          const Expanded(
-                            child: Text(
-                              'Search',
-                              style: TextStyle(color: Colors.grey),
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => SearchScreen()),
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        child: Row(
+                          children: [
+                            Image.asset(
+                              'lib/assets/avarista.png',
+                              width: 30,
+                              height: 25,
                             ),
-                          ),
-
-                          // Mic Icon
-                          const Icon(Icons.mic_none, color: Colors.grey, size: 25),
-                          const SizedBox(width: 12),
-
-                          // Camera Icon
-                          const Icon(Icons.camera_alt, color: Colors.grey, size: 25),
-                        ],
+                            const SizedBox(width: 6),
+                            const Expanded(
+                              child: Text(
+                                'Search',
+                                style: TextStyle(color: Colors.grey),
+                              ),
+                            ),
+                            const Icon(Icons.mic_none, color: Colors.grey, size: 25),
+                            const SizedBox(width: 12),
+                            const Icon(Icons.camera_alt, color: Colors.grey, size: 25),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -206,14 +244,19 @@ class FashionShoppingScreen extends StatelessWidget {
                   const SizedBox(width: 8),
 
                   // Right Segment: Filter
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.rectangle,
-                      borderRadius: BorderRadius.circular(5),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => FilterScreen()));
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.rectangle,
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      child: const Icon(Icons.tune, color: Colors.grey, size: 30),
                     ),
-                    child: const Icon(Icons.tune, color: Colors.grey, size: 30),
                   ),
                 ],
               ),
@@ -229,6 +272,7 @@ class FashionShoppingScreen extends StatelessWidget {
                   borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
                 ),
                 child: ListView(
+                  controller: _scrollController, // Add the scroll controller here
                   padding: const EdgeInsets.all(16),
                   children: [
                     // Banner
@@ -253,14 +297,13 @@ class FashionShoppingScreen extends StatelessWidget {
                         _buildCategoryItem('lib/assets/home_icons/Vector_7.png', 'Hoodie'),
                         _buildCategoryItem('lib/assets/home_icons/Vector_8.png', 'T-Shirt'),
                         _buildCategoryItem('lib/assets/home_icons/Vector_9.png', 'Tank Top'),
-                        _buildCategoryItem('lib/assets/home_icons/Vector_10.png', 'More', onTap: () => _showBottomAppBar(context)),
+                        _buildCategoryItem('lib/assets/home_icons/Vector_10.png', 'More'),
                       ],
                     ),
 
                     const SizedBox(height: 24),
 
                     // shops section
-                    // SHOP TITLE + SEE ALL
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: const [
@@ -284,7 +327,7 @@ class FashionShoppingScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
 
-// SHOP CARDS
+                    // SHOP CARDS
                     SizedBox(
                       height: 180,
                       child: ListView.separated(
@@ -317,12 +360,12 @@ class FashionShoppingScreen extends StatelessWidget {
                                       ),
                                       child: Row(
                                         children: [
-                                          const Icon(Icons.star, size: 14, color: Color(0xFFFFA133)), // orange star
+                                          const Icon(Icons.star, size: 14, color: Color(0xFFFFA133)),
                                           const SizedBox(width: 2),
                                           Text(
                                             shop['rating'].toString(),
                                             style: const TextStyle(
-                                              color: Color(0xFF0C0C0C), // orange text
+                                              color: Color(0xFF0C0C0C),
                                               fontSize: 12,
                                               fontWeight: FontWeight.w600,
                                             ),
@@ -361,14 +404,12 @@ class FashionShoppingScreen extends StatelessWidget {
                       ),
                     ),
 
-
-
                     //special discount section
                     const SizedBox(height: 24),
                     ProductSection(title: 'Special Discount', products: products, showTimer: true),
                     const SizedBox(height: 24),
                     ProductSection(title: 'Top Products', products: topProducts),
-
+                    const SizedBox(height: 100), // Add extra space at bottom for better UX
                   ],
                 ),
               ),
@@ -376,10 +417,53 @@ class FashionShoppingScreen extends StatelessWidget {
           ],
         ),
       ),
+      // Replace the modal bottom sheet with a persistent bottom app bar
+      bottomNavigationBar: AnimatedSlide(
+        duration: const Duration(milliseconds: 300),
+        offset: _isBottomBarVisible ? Offset.zero : const Offset(0, 1),
+        child: Container(
+          margin: const EdgeInsets.all(16),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+            decoration: BoxDecoration(
+              color: Colors.black87,
+              borderRadius: BorderRadius.circular(50),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.2),
+                  blurRadius: 10,
+                  offset: const Offset(0, -2),
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildAppBarIcon(Icons.home, false, () {
+                  // Navigate to Home screen
+                }),
+                _buildAppBarIcon(Icons.apps, false, () {
+                  // Navigate to apps screen
+                }),
+                _buildAppBarIcon(Icons.map_outlined, false, () {
+                  // Navigate to map screen
+                }),
+                _buildAppBarIcon(Icons.favorite_outline, true, () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => SavedItemScreen()),
+                  );
+                }),
+                _buildAppBarIcon(Icons.person_outline, false, () {
+                  // Navigate to profile screen
+                }),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
-
-
 
   Widget _buildCategoryItem(String iconPath, String label, {VoidCallback? onTap}) {
     return GestureDetector(
@@ -390,14 +474,14 @@ class FashionShoppingScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: const BoxDecoration(
-              color: Color(0xFFF5F5F5), // light grey background
+              color: Color(0xFFF5F5F5),
               shape: BoxShape.circle,
             ),
             child: Image.asset(
               iconPath,
               width: 28,
               height: 28,
-              color: Color(0xFFA6192E), // deep red tint (if icons are black)
+              color: Color(0xFFA6192E),
             ),
           ),
           const SizedBox(height: 4),
@@ -412,7 +496,7 @@ class FashionShoppingScreen extends StatelessWidget {
   }
 }
 
-
+// Keep the existing ProductSection, _DiscountCardWithBagIcon, and BannerSlider classes unchanged
 class ProductSection extends StatefulWidget {
   final String title;
   final List<Map<String, dynamic>> products;
@@ -469,7 +553,6 @@ class _ProductSectionState extends State<ProductSection> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Section Title + Timer + See All
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -492,8 +575,6 @@ class _ProductSectionState extends State<ProductSection> {
           ],
         ),
         const SizedBox(height: 16),
-
-        // Product Card List
         SizedBox(
           height: 230,
           child: ListView.separated(
@@ -518,7 +599,6 @@ class _ProductSectionState extends State<ProductSection> {
     );
   }
 }
-
 
 class _DiscountCardWithBagIcon extends StatelessWidget {
   final String image;
@@ -572,13 +652,12 @@ class _DiscountCardWithBagIcon extends StatelessWidget {
                 left: 8,
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-                  decoration: BoxDecoration( borderRadius: BorderRadius.circular(8)),
+                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
                   child: Row(
                     children: [
                       const Icon(Icons.star, size: 14, color: Color(0xFFFFA133)),
                       const SizedBox(width: 2),
-                      Text(rating.toString(), style: const TextStyle(fontSize: 12, color: Color(
-                          0xFF0C0C0C))),
+                      Text(rating.toString(), style: const TextStyle(fontSize: 12, color: Color(0xFF0C0C0C))),
                     ],
                   ),
                 ),
@@ -666,27 +745,27 @@ class _BannerSliderState extends State<BannerSlider> {
     {
       'title': 'Try On Now',
       'subtitle': 'See how it fits\nwith AI try-on',
-      'image': 'lib/assets/banner/banner1.jpg', // Replace with actual image
+      'image': 'lib/assets/banner/banner1.jpg',
     },
     {
       'title': 'Top Rated',
       'subtitle': 'Favorites from\nthousands of users',
-      'image': 'lib/assets/banner/banner1.jpg', // Replace with actual image
+      'image': 'lib/assets/banner/banner1.jpg',
     },
     {
       'title': 'Exclusive Deals',
       'subtitle': 'Only this week\nup to 50% OFF',
-      'image': 'lib/assets/banner/banner1.jpg', // Replace with actual image
+      'image': 'lib/assets/banner/banner1.jpg',
     },
     {
       'title': 'Shop by Brand',
       'subtitle': 'Zara, Nike, H&M\nand many more',
-      'image': 'lib/assets/banner/banner1.jpg', // Replace with actual image
+      'image': 'lib/assets/banner/banner1.jpg',
     },
     {
       'title': 'Festive Specials',
       'subtitle': 'Traditional & modern\nethnic styles',
-      'image': 'lib/assets/banner/banner1.jpg', // Replace with actual image
+      'image': 'lib/assets/banner/banner1.jpg',
     },
   ];
 
@@ -705,7 +784,7 @@ class _BannerSliderState extends State<BannerSlider> {
         duration: const Duration(milliseconds: 500),
         curve: Curves.easeInOut,
       );
-      _autoSlide(); // repeat
+      _autoSlide();
     });
   }
 
@@ -734,14 +813,13 @@ class _BannerSliderState extends State<BannerSlider> {
             clipBehavior: Clip.hardEdge,
             child: Row(
               children: [
-                // Text section with gradient background
                 Expanded(
                   flex: 5,
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     decoration: const BoxDecoration(
                       gradient: LinearGradient(
-                        colors: [ Color(0xFFC5C8B2),Color(0xFFB5BEAF)],
+                        colors: [Color(0xFFC5C8B2), Color(0xFFB5BEAF)],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
@@ -770,8 +848,6 @@ class _BannerSliderState extends State<BannerSlider> {
                     ),
                   ),
                 ),
-
-                // Right Image
                 Expanded(
                   flex: 4,
                   child: Image.asset(
