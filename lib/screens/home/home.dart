@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-import 'package:avarista/screens/home/search/search.dart';
-import 'filter/filter.dart';
-import 'saved_item/saved.dart';
+import 'package:avarista/screens/home/search/search.dart'; // Assuming these exist
+import 'filter/filter.dart'; // Assuming these exist
+import 'saved_item/saved.dart'; // Assuming these exist
 
 class FashionShoppingScreen extends StatefulWidget {
   @override
@@ -135,7 +135,6 @@ class _FashionShoppingScreenState extends State<FashionShoppingScreen> {
     double currentScrollPosition = _scrollController.offset;
     double scrollDifference = currentScrollPosition - _lastScrollPosition;
 
-    // Only react if scroll difference is significant enough
     if (scrollDifference.abs() > scrollThreshold) {
       bool shouldShowBottomBar = scrollDifference < 0; // Scrolling up
 
@@ -153,8 +152,8 @@ class _FashionShoppingScreenState extends State<FashionShoppingScreen> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 48,
-        height: 48,
+        width: 40, // Reduced from 48
+        height: 40, // Reduced from 48
         decoration: BoxDecoration(
           color: isActive ? Colors.white.withOpacity(0.2) : Colors.transparent,
           shape: BoxShape.circle,
@@ -162,7 +161,7 @@ class _FashionShoppingScreenState extends State<FashionShoppingScreen> {
         child: Icon(
           icon,
           color: Colors.white,
-          size: 24,
+          size: 20, // Reduced from 24
         ),
       ),
     );
@@ -170,294 +169,335 @@ class _FashionShoppingScreenState extends State<FashionShoppingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final double fixedTopHeight = 220; // Estimated height for 'Hello, Welcome' + search bar + some red background
+
     return Scaffold(
-      backgroundColor: const Color(0xFFB71C1C),
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Top bar
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Hello, Welcome', style: TextStyle(color: Colors.white, fontSize: 14)),
-                      Text('Albert Stevano', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-                    ],
-                  ),
-                  Row(
-                    children: const [
-                      Icon(Icons.notifications_none, color: Colors.white),
-                      SizedBox(width: 12),
-                      Icon(Icons.shopping_cart_outlined, color: Colors.white),
-                    ],
-                  ),
-                ],
+      backgroundColor: Colors.transparent, // Set the scaffold background to transparent as the Stack will handle it
+      extendBody: true, // This allows the body to extend behind the bottom navigation bar
+      body: Stack(
+        children: [
+          Container(
+            height: fixedTopHeight, // Height of the fixed red background area
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Color(0xFFA6192E), Color(0xFFA6192E)], // Solid red
               ),
             ),
-
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: [
-                  // Left Segment: Camera + Audio + Search
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => SearchScreen()),
-                        );
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                        child: Row(
-                          children: [
-                            Image.asset(
-                              'lib/assets/avarista.png',
-                              width: 30,
-                              height: 25,
-                            ),
-                            const SizedBox(width: 6),
-                            const Expanded(
-                              child: Text(
-                                'Search',
-                                style: TextStyle(color: Colors.grey),
-                              ),
-                            ),
-                            const Icon(Icons.mic_none, color: Colors.grey, size: 25),
-                            const SizedBox(width: 12),
-                            const Icon(Icons.camera_alt, color: Colors.grey, size: 25),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(width: 8),
-
-                  // Right Segment: Filter
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => FilterScreen()));
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.rectangle,
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                      child: const Icon(Icons.tune, color: Colors.grey, size: 30),
-                    ),
-                  ),
-                ],
-              ),
+          ),
+          Positioned(
+            top: fixedTopHeight, // Starts where the fixed red background ends
+            left: 0,
+            right: 0,
+            bottom: 0, // Extends to the bottom of the screen
+            child: Container(color: Colors.white),
+          ),
+          // The main scrollable content
+          ListView(
+            controller: _scrollController,
+            padding: EdgeInsets.only(
+              top: fixedTopHeight, // Content starts below the fixed red area
+              bottom: 80 + MediaQuery.of(context).padding.bottom, // Account for bottom nav bar + system inset
             ),
-
-            const SizedBox(height: 16),
-
-            // Main content
-            Expanded(
-              child: Container(
+            children: [
+              // This is the container for the white background with the top curve.
+              // It's the first scrollable item, immediately following the fixed top.
+              Container(
                 decoration: const BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
                 ),
-                child: ListView(
-                  controller: _scrollController, // Add the scroll controller here
-                  padding: const EdgeInsets.all(16),
-                  children: [
-                    // Banner
-                    BannerSlider(),
+                child: Padding(
+                  padding: const EdgeInsets.all(6), // Padding for the content inside this white container
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Banner
+                      BannerSlider(),
 
-                    const SizedBox(height: 24),
+                      const SizedBox(height: 4),
 
-                    // Category grid
-                    GridView.count(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      crossAxisCount: 5,
-                      mainAxisSpacing: 16,
-                      crossAxisSpacing: 2,
-                      children: [
-                        _buildCategoryItem('lib/assets/home_icons/Vector_1.png', 'Blouse'),
-                        _buildCategoryItem('lib/assets/home_icons/Vector_2.png', 'Uniform'),
-                        _buildCategoryItem('lib/assets/home_icons/Vector_3.png', 'Shirt'),
-                        _buildCategoryItem('lib/assets/home_icons/Vector_4.png', 'Jacket'),
-                        _buildCategoryItem('lib/assets/home_icons/Vector_5.png', 'Pants'),
-                        _buildCategoryItem('lib/assets/home_icons/Vector_6.png', 'Dress'),
-                        _buildCategoryItem('lib/assets/home_icons/Vector_7.png', 'Hoodie'),
-                        _buildCategoryItem('lib/assets/home_icons/Vector_8.png', 'T-Shirt'),
-                        _buildCategoryItem('lib/assets/home_icons/Vector_9.png', 'Tank Top'),
-                        _buildCategoryItem('lib/assets/home_icons/Vector_10.png', 'More'),
-                      ],
-                    ),
-
-                    const SizedBox(height: 24),
-
-                    // shops section
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: const [
-                        Text(
-                          'Shops',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF1E1E1E),
-                          ),
-                        ),
-                        Text(
-                          'See All',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Color(0xFFA6192E),
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-
-                    // SHOP CARDS
-                    SizedBox(
-                      height: 180,
-                      child: ListView.separated(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: shops.length,
-                        separatorBuilder: (_, __) => const SizedBox(width: 12),
-                        itemBuilder: (context, index) {
-                          final shop = shops[index];
-                          return Column(
-                            children: [
-                              Stack(
-                                children: [
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(12),
-                                    child: Image.asset(
-                                      shop['image'],
-                                      width: 185,
-                                      height: 140,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                  // ⭐ Rating
-                                  Positioned(
-                                    top: 8,
-                                    left: 8,
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: Row(
-                                        children: [
-                                          const Icon(Icons.star, size: 14, color: Color(0xFFFFA133)),
-                                          const SizedBox(width: 2),
-                                          Text(
-                                            shop['rating'].toString(),
-                                            style: const TextStyle(
-                                              color: Color(0xFF0C0C0C),
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                  // ❤️ Save Icon
-                                  Positioned(
-                                    top: 8,
-                                    right: 8,
-                                    child: Container(
-                                      padding: const EdgeInsets.all(4),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white.withOpacity(0.8),
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: const Icon(Icons.bookmark_border, size: 18, color: Colors.black),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                shop['name'],
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  color: Color(0xFF333333),
-                                ),
-                              ),
-                            ],
-                          );
-                        },
+                      // Category grid
+                      GridView.count(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        crossAxisCount: 5,
+                        mainAxisSpacing: 16,
+                        crossAxisSpacing: 3,
+                        children: [
+                          _buildCategoryItem('lib/assets/home_icons/Vector_1.png', 'Blouse'),
+                          _buildCategoryItem('lib/assets/home_icons/Vector_2.png', 'Uniform'),
+                          _buildCategoryItem('lib/assets/home_icons/Vector_3.png', 'Shirt'),
+                          _buildCategoryItem('lib/assets/home_icons/Vector_4.png', 'Jacket'),
+                          _buildCategoryItem('lib/assets/home_icons/Vector_5.png', 'Pants'),
+                          _buildCategoryItem('lib/assets/home_icons/Vector_6.png', 'Dress'),
+                          _buildCategoryItem('lib/assets/home_icons/Vector_7.png', 'Hoodie'),
+                          _buildCategoryItem('lib/assets/home_icons/Vector_8.png', 'T-Shirt'),
+                          _buildCategoryItem('lib/assets/home_icons/Vector_9.png', 'Tank Top'),
+                          _buildCategoryItem('lib/assets/home_icons/Vector_10.png', 'More'),
+                        ],
                       ),
-                    ),
 
-                    //special discount section
-                    const SizedBox(height: 24),
-                    ProductSection(title: 'Special Discount', products: products, showTimer: true),
-                    const SizedBox(height: 24),
-                    ProductSection(title: 'Top Products', products: topProducts),
-                    const SizedBox(height: 100), // Add extra space at bottom for better UX
-                  ],
+
+                      // Shops section header
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: const [
+                          Text(
+                            'Shops',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF1E1E1E),
+                            ),
+                          ),
+                          Text(
+                            'See All',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Color(0xFFA6192E),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+
+                      // SHOP CARDS
+                      SizedBox(
+                        height: 180,
+                        child: ListView.separated(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: shops.length,
+                          separatorBuilder: (_, __) => const SizedBox(width: 12),
+                          itemBuilder: (context, index) {
+                            final shop = shops[index];
+                            return Column(
+                              children: [
+                                Stack(
+                                  children: [
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(12),
+                                      child: Image.asset(
+                                        shop['image'],
+                                        width: 185,
+                                        height: 140,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                    // ⭐ Rating
+                                    Positioned(
+                                      top: 8,
+                                      left: 8,
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            const Icon(Icons.star, size: 14, color: Color(0xFFFFA133)),
+                                            const SizedBox(width: 2),
+                                            Text(
+                                              shop['rating'].toString(),
+                                              style: const TextStyle(
+                                                color: Color(0xFF0C0C0C),
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    // ❤️ Save Icon
+                                    Positioned(
+                                      top: 8,
+                                      right: 8,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(4),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white.withOpacity(0.8),
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: const Icon(Icons.bookmark_border, size: 18, color: Colors.black),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  shop['name'],
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    color: Color(0xFF333333),
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+                      ),
+
+                      // Special discount section
+                      const SizedBox(height: 24),
+                      ProductSection(title: 'Special Discount', products: products, showTimer: true),
+                      const SizedBox(height: 24),
+                      ProductSection(title: 'Top Products', products: topProducts),
+                      // Add extra space at bottom for better UX (account for bottom nav bar)
+                      const SizedBox(height: 100),
+                    ],
+                  ),
                 ),
               ),
+            ],
+          ),
+          // Fixed top bar content (always visible on top of everything)
+          SafeArea(
+            child: Column(
+              children: [
+                // Top bar: "Hello, Welcome" and icons
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Hello, Welcome', style: TextStyle(color: Colors.white, fontSize: 14)),
+                          Text('Albert Stevano', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                      Row(
+                        children: const [
+                          Icon(Icons.notifications_none, color: Colors.white),
+                          SizedBox(width: 12),
+                          Icon(Icons.shopping_cart_outlined, color: Colors.white),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                // Search bar and filter
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    children: [
+                      // Left Segment: Camera + Audio + Search
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => SearchScreen()),
+                            );
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                            child: Row(
+                              children: [
+                                Image.asset(
+                                  'lib/assets/avarista.png',
+                                  width: 30,
+                                  height: 25,
+                                ),
+                                const SizedBox(width: 6),
+                                const Expanded(
+                                  child: Text(
+                                    'Search',
+                                    style: TextStyle(color: Colors.grey),
+                                  ),
+                                ),
+                                const Icon(Icons.mic_none, color: Colors.grey, size: 25),
+                                const SizedBox(width: 12),
+                                const Icon(Icons.camera_alt, color: Colors.grey, size: 25),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(width: 8),
+
+                      // Right Segment: Filter
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => FilterScreen()));
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.rectangle,
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          child: const Icon(Icons.tune, color: Colors.grey, size: 30),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
-      // Replace the modal bottom sheet with a persistent bottom app bar
       bottomNavigationBar: AnimatedSlide(
         duration: const Duration(milliseconds: 300),
         offset: _isBottomBarVisible ? Offset.zero : const Offset(0, 1),
         child: Container(
-          margin: const EdgeInsets.all(16),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-            decoration: BoxDecoration(
-              color: Colors.black87,
-              borderRadius: BorderRadius.circular(50),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
-                  blurRadius: 10,
-                  offset: const Offset(0, -2),
-                ),
-              ],
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _buildAppBarIcon(Icons.home, false, () {
-                  // Navigate to Home screen
-                }),
-                _buildAppBarIcon(Icons.apps, false, () {
-                  // Navigate to apps screen
-                }),
-                _buildAppBarIcon(Icons.map_outlined, false, () {
-                  // Navigate to map screen
-                }),
-                _buildAppBarIcon(Icons.favorite_outline, true, () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => SavedItemScreen()),
-                  );
-                }),
-                _buildAppBarIcon(Icons.person_outline, false, () {
-                  // Navigate to profile screen
-                }),
-              ],
+          height: 80, // Set a fixed compact height
+          padding: EdgeInsets.zero, // Remove any default padding
+          margin: EdgeInsets.zero, // Remove any default margin
+          child: Center(
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.black87,
+                borderRadius: BorderRadius.circular(50),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    blurRadius: 10,
+                    offset: const Offset(0, -2),
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _buildAppBarIcon(Icons.home, false, () {
+                    // Navigate to Home screen
+                  }),
+                  const SizedBox(width: 8),
+                  _buildAppBarIcon(Icons.apps, false, () {
+                    // Navigate to apps screen
+                  }),
+                  const SizedBox(width: 8),
+                  _buildAppBarIcon(Icons.map_outlined, false, () {
+                    // Navigate to map screen
+                  }),
+                  const SizedBox(width: 8),
+                  _buildAppBarIcon(Icons.favorite_outline, true, () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => SavedItemScreen()),
+                    );
+                  }),
+                  const SizedBox(width: 8),
+                  _buildAppBarIcon(Icons.person_outline, false, () {
+                    // Navigate to profile screen
+                  }),
+                ],
+              ),
             ),
           ),
         ),
@@ -562,14 +602,14 @@ class _ProductSectionState extends State<ProductSection> {
                 if (widget.showTimer)
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(12)),
+                    decoration: BoxDecoration(color: const Color(0xFFA6192E), borderRadius: BorderRadius.circular(12)),
                     child: Text(
                       _formatDuration(_duration),
                       style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
                     ),
                   ),
                 const SizedBox(width: 8),
-                const Text('See All', style: TextStyle(color: Colors.red)),
+                const Text('See All', style: TextStyle(color: Color(0xFFA6192E), fontSize: 14)),
               ],
             ),
           ],
@@ -723,7 +763,7 @@ class BannerSlider extends StatefulWidget {
 }
 
 class _BannerSliderState extends State<BannerSlider> {
-  final PageController _pageController = PageController(viewportFraction: 0.95);
+  final PageController _pageController = PageController(viewportFraction: 0.98);
   int _currentIndex = 0;
 
   final List<Map<String, String>> bannerData = [
@@ -791,7 +831,7 @@ class _BannerSliderState extends State<BannerSlider> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 150,
+      height: 154,
       child: PageView.builder(
         controller: _pageController,
         itemCount: bannerData.length,
