@@ -8,10 +8,10 @@ class FashionShoppingScreen extends StatefulWidget {
   @override
   _FashionShoppingScreenState createState() => _FashionShoppingScreenState();
 }
-
 class _FashionShoppingScreenState extends State<FashionShoppingScreen> {
   final ScrollController _scrollController = ScrollController();
   bool _isBottomBarVisible = true;
+  int _selectedIndex = 0;
   double _lastScrollPosition = 0;
 
   final List<Map<String, dynamic>> products = [
@@ -147,9 +147,15 @@ class _FashionShoppingScreenState extends State<FashionShoppingScreen> {
     }
   }
 
-  Widget _buildAppBarIcon(IconData icon, bool isActive, VoidCallback onTap) {
+  Widget _buildAppBarIcon(IconData icon, int index, VoidCallback onTap) {
+    bool isActive = _selectedIndex == index;
     return GestureDetector(
-      onTap: onTap,
+      onTap: () {
+        setState(() {
+          _selectedIndex = index;
+        });
+        onTap();
+      },
       child: Container(
         width: 40,
         height: 40,
@@ -159,8 +165,8 @@ class _FashionShoppingScreenState extends State<FashionShoppingScreen> {
         ),
         child: Icon(
           icon,
-          color: Colors.white,
-          size: 20,
+          color: isActive ? Colors.white : Colors.white,
+          size: 22,
         ),
       ),
     );
@@ -418,33 +424,34 @@ class _FashionShoppingScreenState extends State<FashionShoppingScreen> {
                 ],
               ),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _buildAppBarIcon(Icons.home, false, () {
-                    // Navigate to Home screen
-                  }),
-                  const SizedBox(width: 8),
-                  _buildAppBarIcon(Icons.apps, false, () {
-                    // Navigate to apps screen
-                  }),
-                  const SizedBox(width: 8),
-                  _buildAppBarIcon(Icons.map_outlined, false, () {
-                    // Navigate to map screen
-                  }),
-                  const SizedBox(width: 8),
-                  _buildAppBarIcon(Icons.favorite_outline, true, () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => SavedItemScreen()),
-                    );
-                  }),
-                  const SizedBox(width: 8),
-                  _buildAppBarIcon(Icons.person_outline, false, () {
-                    // Navigate to profile screen
-                  }),
-                ],
-              ),
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildAppBarIcon(Icons.home, 0, () {
+                  // Navigate to Home screen
+                }),
+                const SizedBox(width: 8),
+                _buildAppBarIcon(Icons.apps, 1, () {
+                  // Navigate to apps screen
+                }),
+                const SizedBox(width: 8),
+                _buildAppBarIcon(Icons.map_outlined, 2, () {
+                  // Navigate to map screen
+                }),
+                const SizedBox(width: 8),
+                _buildAppBarIcon(Icons.favorite_outline, 3, () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => SavedItemScreen()),
+                  );
+                }),
+                const SizedBox(width: 8),
+                _buildAppBarIcon(Icons.person_outline, 4, () {
+                  // Navigate to profile screen
+                }),
+              ],
             ),
+
+          ),
           ),
         ),
       ),
@@ -499,7 +506,6 @@ class ProductSection extends StatefulWidget {
   @override
   State<ProductSection> createState() => _ProductSectionState();
 }
-
 class _ProductSectionState extends State<ProductSection> {
   late Timer _timer;
   Duration _duration = const Duration(hours: 10, minutes: 20, seconds: 35);
@@ -587,7 +593,7 @@ class _ProductSectionState extends State<ProductSection> {
   }
 }
 
-class _DiscountCardWithBagIcon extends StatelessWidget {
+class _DiscountCardWithBagIcon extends StatefulWidget {
   final String image;
   final String title;
   final String subtitle;
@@ -604,6 +610,12 @@ class _DiscountCardWithBagIcon extends StatelessWidget {
     required this.price,
     this.originalPrice,
   }) : super(key: key);
+  @override
+  State<_DiscountCardWithBagIcon> createState() => _DiscountCardWithBagIconState();
+}
+class _DiscountCardWithBagIconState extends State<_DiscountCardWithBagIcon> {
+  bool isWishlisted = false;
+  bool isInBag = false;
 
   @override
   Widget build(BuildContext context) {
@@ -628,62 +640,123 @@ class _DiscountCardWithBagIcon extends StatelessWidget {
               ClipRRect(
                 borderRadius: const BorderRadius.only(topLeft: Radius.circular(16), topRight: Radius.circular(16)),
                 child: Image.asset(
-                  image,
+                  widget.image,
                   width: double.infinity,
                   height: 140,
                   fit: BoxFit.cover,
                 ),
               ),
+
+              // ⭐ Rating
               Positioned(
                 top: 8,
                 left: 8,
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    color: Colors.white.withOpacity(0.8),
+                  ),
                   child: Row(
                     children: [
                       const Icon(Icons.star, size: 14, color: Color(0xFFFFA133)),
                       const SizedBox(width: 2),
-                      Text(rating.toString(), style: const TextStyle(fontSize: 12, color: Color(0xFF0C0C0C))),
+                      Text(widget.rating.toString(),
+                          style: const TextStyle(fontSize: 12, color: Color(0xFF0C0C0C))),
                     ],
                   ),
                 ),
               ),
+
+              // ❤️ Wishlist Button
               Positioned(
                 top: 8,
                 right: 8,
-                child: Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(color: Colors.white.withOpacity(0.9), shape: BoxShape.circle),
-                  child: const Icon(Icons.favorite_border, size: 16, color: Colors.grey),
+                child: GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      isWishlisted = !isWishlisted;
+                    });
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(isWishlisted
+                            ? 'Added to Wishlist'
+                            : 'Removed from Wishlist'),
+                        duration: const Duration(seconds: 1),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.9),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      isWishlisted ? Icons.favorite : Icons.favorite_border,
+                      size: 16,
+                      color: isWishlisted ? Colors.red : Colors.grey,
+                    ),
+                  ),
                 ),
               ),
+
+              // 🛍 Add to Bag Button
               Positioned(
                 bottom: 8,
                 right: 8,
-                child: Container(
-                  padding: const EdgeInsets.all(6),
-                  decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-                  child: const Icon(Icons.shopping_bag_outlined, size: 16, color: Colors.black),
+                child: GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      isInBag = !isInBag;
+                    });
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(isInBag
+                            ? 'Added to Bag'
+                            : 'Removed from Bag'),
+                        duration: const Duration(seconds: 1),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      isInBag ? Icons.shopping_bag : Icons.shopping_bag_outlined,
+                      size: 16,
+                      color: isInBag ? const Color(0xFFA6192E) : Colors.black,
+                    ),
+                  ),
                 ),
               ),
             ],
           ),
+
+          // 👕 Product Info
           Padding(
             padding: const EdgeInsets.all(12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-                Text(subtitle, style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                Text(widget.title,
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
+                Text(widget.subtitle,
+                    style: const TextStyle(color: Colors.grey, fontSize: 12)),
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    Text(price, style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
-                    if (originalPrice != null) ...[
+                    Text(widget.price,
+                        style: const TextStyle(
+                            color: Colors.green,
+                            fontWeight: FontWeight.bold)),
+                    if (widget.originalPrice != null) ...[
                       const SizedBox(width: 6),
                       Text(
-                        originalPrice!,
+                        widget.originalPrice!,
                         style: const TextStyle(
                           decoration: TextDecoration.lineThrough,
                           color: Colors.grey,
@@ -708,7 +781,6 @@ class BannerSlider extends StatefulWidget {
   @override
   State<BannerSlider> createState() => _BannerSliderState();
 }
-
 class _BannerSliderState extends State<BannerSlider> {
   final PageController _pageController = PageController(viewportFraction: 1.1);
   int _currentIndex = 0;
