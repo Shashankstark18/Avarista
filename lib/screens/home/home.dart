@@ -4,6 +4,9 @@ import 'package:avarista/screens/home/search/search.dart';
 import 'filter/filter.dart';
 import 'saved_item/saved.dart';
 import 'category/catogory.dart';
+import 'nearby_stores/nearby_shops_wrapper.dart';
+import 'nearby_stores/location_permission_screen.dart';
+import 'category/CategoryItemScreen.dart';
 import 'mycart.dart';
 import 'notification.dart';
 
@@ -574,15 +577,23 @@ class _FashionShoppingScreenState extends State<FashionShoppingScreen> {
                   _buildAppBarIcon(Icons.home, 0, () {
                     // Navigate to Home screen
                   }),
-                  const SizedBox(width: 8),
-                  _buildAppBarIcon(Icons.apps, 1, () {
-                    // Navigate to apps screen
-                  }),
-                  const SizedBox(width: 8),
+                _buildAppBarIcon(Icons.apps, 1, () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CategoryScreen(),
+                    ),
+                  );
+                }),
                   _buildAppBarIcon(Icons.map_outlined, 2, () {
-                    // Navigate to map screen
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => NearbyShopsWrapper(),
+                      ),
+                    );
                   }),
-                  const SizedBox(width: 8),
+
                   _buildAppBarIcon(Icons.favorite_outline, 3, () {
                     Navigator.push(
                       context,
@@ -591,7 +602,6 @@ class _FashionShoppingScreenState extends State<FashionShoppingScreen> {
                       ),
                     );
                   }),
-                  const SizedBox(width: 8),
                   _buildAppBarIcon(Icons.person_outline, 4, () {
                     // Navigate to profile screen
                   }),
@@ -606,12 +616,24 @@ class _FashionShoppingScreenState extends State<FashionShoppingScreen> {
 
   // _buildCategoryItem and other helper widgets remain the same
   Widget _buildCategoryItem(
-    String iconPath,
-    String label, {
-    VoidCallback? onTap,
-  }) {
+      String iconPath,
+      String label, {
+        VoidCallback? onTap,
+      }) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: onTap ??
+              () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => CategoryItemsScreen(
+                      categoryName: label,
+                      items: _mapCategoryToItems(label), // 🔹 pull correct data
+                    ),
+                  ),
+                );
+
+              },
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -625,7 +647,7 @@ class _FashionShoppingScreenState extends State<FashionShoppingScreen> {
               iconPath,
               width: 29,
               height: 29,
-              color: Color(0xFFA6192E),
+              color: const Color(0xFFA6192E),
             ),
           ),
           const SizedBox(height: 4),
@@ -638,9 +660,8 @@ class _FashionShoppingScreenState extends State<FashionShoppingScreen> {
       ),
     );
   }
-}
+  }
 
-// ProductSection and _DiscountCardWithBagIcon classes remain unchanged
 class ProductSection extends StatefulWidget {
   final String title;
   final List<Map<String, dynamic>> products;
@@ -978,48 +999,28 @@ class BannerSlider extends StatefulWidget {
 }
 
 class _BannerSliderState extends State<BannerSlider> {
-  final PageController _pageController = PageController(viewportFraction: 1.1);
+  final PageController _pageController = PageController(viewportFraction: 1.0);
   int _currentIndex = 0;
 
   final List<Map<String, String>> bannerData = [
     {
-      'title': 'Avarisra',
+      'title': 'Avarista',
       'subtitle': 'Good choice for\nfashionistas',
       'image': 'lib/assets/banner/banner1.jpg',
     },
     {
-      'title': 'New Trends',
-      'subtitle': 'Latest arrivals\njust for you',
-      'image': 'lib/assets/banner/banner1.jpg',
+      'title': 'Avarista\nIndian Heritage\nYour Beauty',
+      'subtitle': '',
+      'image': 'lib/assets/banner/banner2.png',
     },
     {
-      'title': 'Try On Now',
-      'subtitle': 'See how it fits\nwith AI try-on',
-      'image': 'lib/assets/banner/banner1.jpg',
+      'title': 'See Indian fashion at\nAvarista',
+      'subtitle': '',
+      'image': 'lib/assets/banner/banner3.png',
     },
     {
-      'title': 'Try On Now',
-      'subtitle': 'See how it fits\nwith AI try-on',
-      'image': 'lib/assets/banner/banner1.jpg',
-    },
-    {
-      'title': 'Top Rated',
-      'subtitle': 'Favorites from\nthousands of users',
-      'image': 'lib/assets/banner/banner1.jpg',
-    },
-    {
-      'title': 'Exclusive Deals',
-      'subtitle': 'Only this week\nup to 50% OFF',
-      'image': 'lib/assets/banner/banner1.jpg',
-    },
-    {
-      'title': 'Shop by Brand',
-      'subtitle': 'Zara, Nike, H&M\nand many more',
-      'image': 'lib/assets/banner/banner1.jpg',
-    },
-    {
-      'title': 'Festive Specials',
-      'subtitle': 'Traditional & modern\nethnic styles',
+      'title': 'Modern Fashion Trends',
+      'subtitle': 'Exclusive Collection 2025',
       'image': 'lib/assets/banner/banner1.jpg',
     },
   ];
@@ -1033,7 +1034,9 @@ class _BannerSliderState extends State<BannerSlider> {
   void _autoSlide() {
     Future.delayed(const Duration(seconds: 4), () {
       if (!mounted) return;
-      _currentIndex = (_currentIndex + 1) % bannerData.length;
+      setState(() {
+        _currentIndex = (_currentIndex + 1) % bannerData.length;
+      });
       _pageController.animateToPage(
         _currentIndex,
         duration: const Duration(milliseconds: 500),
@@ -1045,84 +1048,342 @@ class _BannerSliderState extends State<BannerSlider> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 154,
-      child: PageView.builder(
-        controller: _pageController,
-        itemCount: bannerData.length,
-        itemBuilder: (context, index) {
-          final banner = bannerData[index];
-          return Container(
-            margin: const EdgeInsets.symmetric(horizontal: 4),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(24),
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black12.withOpacity(0.05),
-                  blurRadius: 6,
-                  offset: const Offset(0, 3),
+    return Column(
+      children: [
+        SizedBox(
+          height: 154,
+          child: PageView.builder(
+            controller: _pageController,
+            itemCount: bannerData.length,
+            onPageChanged: (index) {
+              setState(() {
+                _currentIndex = index;
+              });
+            },
+            itemBuilder: (context, index) {
+              // Use different styles based on index
+              if (index % 3 == 0) return _buildFirstCard(bannerData[index]);
+              if (index % 3 == 1) return _buildSecondCard(bannerData[index]);
+              return _buildThirdCard(bannerData[index]);
+            },
+          ),
+        ),
+        const SizedBox(height: 12),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(bannerData.length, (index) {
+            bool isActive = index == _currentIndex;
+            return AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              margin: const EdgeInsets.symmetric(horizontal: 4),
+              width: isActive ? 16 : 8,
+              height: 8,
+              decoration: BoxDecoration(
+                color: isActive ? const Color(0xFFA6192E) : Colors.grey[400],
+                borderRadius: BorderRadius.circular(12),
+              ),
+            );
+          }),
+        ),
+      ],
+    );
+  }
+
+// First Card
+  Widget _buildFirstCard(Map<String, String> banner) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 4),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12.withOpacity(0.05),
+            blurRadius: 6,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(24),
+        child: Row(
+          children: [
+            Expanded(
+              flex: 5,
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(0xFFC5C8B2), Color(0xFFB5BEAF)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
                 ),
-              ],
-            ),
-            clipBehavior: Clip.hardEdge,
-            child: Row(
-              children: [
-                Expanded(
-                  flex: 5,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 20,
-                    ),
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [Color(0xFFC5C8B2), Color(0xFFB5BEAF)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      banner['title'] ?? '',
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF1C1C5A),
                       ),
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          banner['title'] ?? '',
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF1C1C5A),
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          banner['subtitle'] ?? '',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Colors.black54,
-                          ),
-                        ),
-                      ],
+                    const SizedBox(height: 8),
+                    Text(
+                      banner['subtitle'] ?? '',
+                      style: const TextStyle(fontSize: 14, color: Colors.black54),
                     ),
-                  ),
+                  ],
                 ),
-                Expanded(
-                  flex: 4,
-                  child: Image.asset(
-                    banner['image']!,
-                    height: double.infinity,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
-                      color: Colors.grey[300],
-                      child: const Icon(Icons.image_not_supported, size: 40),
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
-          );
-        },
+            Expanded(
+              flex: 4,
+              child: Image.asset(
+                banner['image'] ?? 'lib/assets/banner/placeholder.jpg',
+                height: double.infinity,
+                fit: BoxFit.cover, // fills & crops nicely
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
+
+  // Second Card
+  Widget _buildSecondCard(Map<String, String> banner) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 4),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(24),
+        color: const Color(0xFF5C2E2E),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 6,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // First line
+                  Padding(
+                    padding: const EdgeInsets.only(top:10),
+                    child: Text(
+                      "Avarista",
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                  // Second line shifted right
+                  const SizedBox(height: 2),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 40),
+                    child: Text(
+                      "Indian Heritage",
+                      style: const TextStyle(
+                        fontSize: 18,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                  // Third line shifted more right
+                  const SizedBox(height: 2),
+
+                  Padding(
+                    padding: const EdgeInsets.only(left: 100),
+                    child: Text(
+                      "Your Beauty",
+                      style: const TextStyle(
+                        fontSize: 18,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 4,
+            child: ClipRRect(
+              borderRadius: const BorderRadius.only(
+                topRight: Radius.circular(24),
+                bottomRight: Radius.circular(24),
+              ),
+              child: Image.asset(
+                banner['image']!,
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Third Card
+  Widget _buildThirdCard(Map<String, String> banner) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 4),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(24),
+        color: const Color(0xFFD36878),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 6,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  Text(
+                    "See Indian fashion at",
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.white,
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    "Avarista",
+                    style: TextStyle(
+                      fontSize: 22, // Bigger
+                      fontWeight: FontWeight.bold, // Bolder
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 4,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                // Circle behind image
+                Container(
+                  width: 120,
+                  height: 120,
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white,
+                  ),
+                ),
+                // Model image
+                Image.asset(
+                  banner['image']!,
+                  fit: BoxFit.contain,
+                  height: 140,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+List<Map<String, dynamic>> _mapCategoryToItems(String category) {
+  if (category == "Blouse") {
+    return [
+      {
+        "image": "lib/assets/products/product1.png",
+        "name": "Elegant Blouse",
+        "rating": 4.7,
+        "reviews": 200,
+      },
+      {
+        "image": "lib/assets/products/product2.png",
+        "name": "Casual Blouse",
+        "rating": 4.5,
+        "reviews": 85,
+      },
+    ];
+  } else if (category == "Uniform") {
+    return [
+      {
+        "image": "lib/assets/products/product3.png",
+        "name": "School Uniform",
+        "rating": 4.9,
+        "reviews": 310,
+      },
+    ];
+  } else if (category == "Shirt") {
+    return [
+      {
+        "image": "lib/assets/products/product4.png",
+        "name": "Formal Shirt",
+        "rating": 4.6,
+        "reviews": 150,
+      },
+    ];
+  } else if (category == "Jacket") {
+    return [
+      {
+        "image": "lib/assets/products/product5.png",
+        "name": "Winter Jacket",
+        "rating": 4.8,
+        "reviews": 95,
+      },
+    ];
+  } else if (category == "Pants") {
+    return [
+      {
+        "image": "lib/assets/products/product6.png",
+        "name": "Slim Pants",
+        "rating": 4.5,
+        "reviews": 80,
+      },
+    ];
+  } else if (category == "Dress") {
+    return [
+      {
+        "image": "lib/assets/products/product1.png",
+        "name": "Elegant Dress",
+        "rating": 4.7,
+        "reviews": 200,
+      },
+    ];
+  } else if (category == "Hoodie") {
+    return [
+      {
+        "image": "lib/assets/products/product2.png",
+        "name": "Comfy Hoodie",
+        "rating": 4.4,
+        "reviews": 70,
+      },
+    ];
+  } else if (category == "T-Shirt") {
+    return [
+      {
+        "image": "lib/assets/products/product3.png",
+        "name": "Casual T-Shirt",
+        "rating": 4.3,
+        "reviews": 120,
+      },
+    ];
+  } else if (category == "Tank Top") {
+    return [
+      {
+        "image": "lib/assets/products/product4.png",
+        "name": "Summer Tank Top",
+        "rating": 4.2,
+        "reviews": 60,
+      },
+    ];
+  }
+  return [];
 }

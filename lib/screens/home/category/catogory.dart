@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'CategoryItemScreen.dart'; // 👈 make sure this exists
 
 class CategoryScreen extends StatelessWidget {
   const CategoryScreen({Key? key}) : super(key: key);
@@ -28,13 +29,29 @@ class CategoryScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            _buildCategorySection(title: 'Shops', items: _getShopItems()),
+            _buildCategorySection(
+              context: context,
+              title: 'Shops',
+              items: _getShopItems(),
+            ),
             const SizedBox(height: 24),
-            _buildCategorySection(title: 'Dress', items: _getDressItems()),
+            _buildCategorySection(
+              context: context,
+              title: 'Dress',
+              items: _getDressItems(),
+            ),
             const SizedBox(height: 24),
-            _buildCategorySection(title: 'Sport', items: _getSportItems()),
+            _buildCategorySection(
+              context: context,
+              title: 'Sport',
+              items: _getSportItems(),
+            ),
             const SizedBox(height: 24),
-            _buildCategorySection(title: 'Hoodie', items: _getHoodieItems()),
+            _buildCategorySection(
+              context: context,
+              title: 'Hoodie',
+              items: _getHoodieItems(),
+            ),
           ],
         ),
       ),
@@ -42,6 +59,7 @@ class CategoryScreen extends StatelessWidget {
   }
 
   Widget _buildCategorySection({
+    required BuildContext context,
     required String title,
     required List<CategoryItem> items,
   }) {
@@ -61,7 +79,16 @@ class CategoryScreen extends StatelessWidget {
             ),
             TextButton(
               onPressed: () {
-                // Handle see all action
+                // 👉 Navigate to See All screen
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => CategoryItemsScreen(
+                      categoryName: title,
+                      items: _mapCategoryToItems(title),
+                    ),
+                  ),
+                );
               },
               child: const Text(
                 'See All',
@@ -82,22 +109,30 @@ class CategoryScreen extends StatelessWidget {
             crossAxisCount: 5,
             crossAxisSpacing: 8,
             mainAxisSpacing: 8,
-            childAspectRatio: 1.0, // square items
+            childAspectRatio: 1.0,
           ),
           itemCount: items.length,
           itemBuilder: (context, index) {
-            return _buildCategoryItem(items[index]);
+            return _buildCategoryItem(context, title, items[index]);
           },
         ),
       ],
     );
   }
 
-  Widget _buildCategoryItem(CategoryItem item) {
+  Widget _buildCategoryItem(
+      BuildContext context, String categoryName, CategoryItem item) {
     return GestureDetector(
       onTap: () {
-        // Handle item tap
-        print('Tapped on category item');
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => CategoryItemsScreen(
+              categoryName: categoryName,
+              items: _mapCategoryToItems(categoryName),
+            ),
+          ),
+        );
       },
       child: Container(
         decoration: BoxDecoration(
@@ -118,8 +153,11 @@ class CategoryScreen extends StatelessWidget {
             item.imagePath,
             fit: BoxFit.cover,
             errorBuilder: (context, error, stackTrace) {
-              return const Icon(Icons.image_not_supported,
-                  size: 24, color: Colors.grey);
+              return const Icon(
+                Icons.image_not_supported,
+                size: 24,
+                color: Colors.grey,
+              );
             },
           ),
         ),
@@ -127,7 +165,61 @@ class CategoryScreen extends StatelessWidget {
     );
   }
 
-  // Sample Items
+  // 🔹 Map category name -> item data
+  List<Map<String, dynamic>> _mapCategoryToItems(String category) {
+    if (category == "Shops") {
+      return [
+        {
+          "image": "lib/assets/shops/shop1.jpg",
+          "name": "Trendy Shop",
+          "rating": 4.8,
+          "reviews": 120,
+        },
+        {
+          "image": "lib/assets/shops/shop2.jpg",
+          "name": "Fashion World",
+          "rating": 4.6,
+          "reviews": 90,
+        },
+      ];
+    } else if (category == "Dress") {
+      return [
+        {
+          "image": "lib/assets/products/product1.png",
+          "name": "Elegant Dress",
+          "rating": 4.7,
+          "reviews": 200,
+        },
+        {
+          "image": "lib/assets/products/product2.png",
+          "name": "Summer Outfit",
+          "rating": 4.5,
+          "reviews": 85,
+        },
+      ];
+    } else if (category == "Sport") {
+      return [
+        {
+          "image": "lib/assets/products/product3.png",
+          "name": "Running Shoes",
+          "rating": 4.9,
+          "reviews": 310,
+        },
+      ];
+    } else if (category == "Hoodie") {
+      return [
+        {
+          "image": "lib/assets/products/product4.png",
+          "name": "Comfy Hoodie",
+          "rating": 4.4,
+          "reviews": 70,
+        },
+      ];
+    }
+    return [];
+  }
+
+  // 🔹 Sample Items for Grid Icons
   List<CategoryItem> _getShopItems() {
     return List.generate(
       10,
@@ -167,6 +259,5 @@ class CategoryScreen extends StatelessWidget {
 
 class CategoryItem {
   final String imagePath;
-
   CategoryItem({required this.imagePath});
 }
